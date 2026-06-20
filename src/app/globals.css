@@ -1,0 +1,241 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 224 71.4% 4.1%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71.4% 4.1%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71.4% 4.1%;
+    --primary: 220.9 39.3% 11%;
+    --primary-foreground: 210 20% 98%;
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 220.9 39.3% 11%;
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
+    --accent: 220 14.3% 95.9%;
+    --accent-foreground: 220.9 39.3% 11%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 224 71.4% 4.1%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem
+  }
+  .dark {
+    --background: 224 71.4% 4.1%;
+    --foreground: 210 20% 98%;
+    --card: 224 71.4% 4.1%;
+    --card-foreground: 210 20% 98%;
+    --popover: 224 71.4% 4.1%;
+    --popover-foreground: 210 20% 98%;
+    --primary: 210 20% 98%;
+    --primary-foreground: 220.9 39.3% 11%;
+    --secondary: 215 27.9% 16.9%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 215 27.9% 16.9%;
+    --muted-foreground: 217.9 10.6% 64.9%;
+    --accent: 215 27.9% 16.9%;
+    --accent-foreground: 210 20% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 215 27.9% 16.9%;
+    --input: 215 27.9% 16.9%;
+    --ring: 216 12.2% 83.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+@layer utilities {
+  .animation-delay-150 {
+    animation-delay: 150ms;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+
+  .animation-delay-500 {
+    animation-delay: 500ms;
+  }
+
+  .animation-delay-700 {
+    animation-delay: 700ms;
+  }
+
+  .animation-delay-1000 {
+    animation-delay: 1000ms;
+  }
+
+  /* Google Sign-In Button Custom Styling - Comprehensive */
+  .google-signin-button {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    letter-spacing: 0.025em !important;
+  }
+
+  /* Target all elements within the Google Sign-In button */
+  .google-signin-button *,
+  .google-signin-button div,
+  .google-signin-button span,
+  .google-signin-button button {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 500 !important;
+  }
+
+  /* Global targeting for Google Sign-In buttons */
+  div[data-testid="button"],
+  div[data-testid="button"] *,
+  div[data-testid="button"] div,
+  div[data-testid="button"] span {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 500 !important;
+  }
+
+  /* Target Google's iframe content */
+  iframe[title*="Sign in with Google"],
+  iframe[title*="Sign in with Google"] * {
+    font-family: 'Poppins', sans-serif !important;
+  }
+
+  /* Additional selectors for Google Sign-In */
+  [data-testid="button"] {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 500 !important;
+  }
+
+  /* Target the button content specifically */
+  .google-signin-button [role="button"],
+  .google-signin-button [role="button"] * {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 500 !important;
+  }
+
+  /* More aggressive targeting for Google Sign-In */
+  body div[data-testid="button"],
+  body div[data-testid="button"] *,
+  body div[data-testid="button"] div,
+  body div[data-testid="button"] span,
+  body div[data-testid="button"] button {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 500 !important;
+  }
+
+  /* Target any element with Google Sign-In related classes */
+  [class*="google"],
+  [class*="Google"],
+  [id*="google"],
+  [id*="Google"] {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 500 !important;
+  }
+
+  /* Specific targeting for Google Sign-In button text */
+  .google-signin-button iframe,
+  .google-signin-button iframe * {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 500 !important;
+  }
+
+  /* Override Google's default font */
+  .google-signin-button [style*="font-family"] {
+    font-family: 'Poppins', sans-serif !important;
+  }
+
+  /* Additional targeting for Google Sign-In button */
+  .google-signin-button [data-testid="button"] {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 500 !important;
+  }
+
+  /* Target the button text specifically */
+  .google-signin-button [data-testid="button"] span,
+  .google-signin-button [data-testid="button"] div {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 500 !important;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-float-delayed {
+    animation: float 8s ease-in-out infinite reverse;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+/* Custom Scrollbar Styles */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+/* Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
