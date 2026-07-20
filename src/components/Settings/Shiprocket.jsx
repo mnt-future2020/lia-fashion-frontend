@@ -61,7 +61,11 @@ export default function Shiprocket() {  const [settings, setSettings] = useState
       const method = settingId ? 'put' : 'post';
       const url = settingId
         ? `/api/admin/shiprocket-settings/${settingId}`
-        : '/api/admin/shiprocket-settings';      const response = await axios[method](url, settings);
+        : '/api/admin/shiprocket-settings';
+      // Omit an empty password when editing — the backend keeps the stored one.
+      const payload = { ...settings };
+      if (!payload.password) delete payload.password;
+      const response = await axios[method](url, payload);
 
       if (response.data.status === 'success') {
         toast.success('Shiprocket settings saved successfully');
@@ -81,7 +85,7 @@ export default function Shiprocket() {  const [settings, setSettings] = useState
   return (
     <Card className="max-w-[95%] mx-auto">
       <CardContent className="space-y-8 p-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-xl sm:text-2xl font-bold">Shiprocket Settings</h2>
           <div className="flex items-center gap-2">
             <span className={`inline-block px-2 py-1 text-xs rounded-full ${
@@ -115,8 +119,8 @@ export default function Shiprocket() {  const [settings, setSettings] = useState
                   type={showPassword ? "text" : "password"}
                   value={settings.password}
                   onChange={(e) => handleChange('password', e.target.value)}
-                  placeholder="Enter Shiprocket password"
-                  required
+                  placeholder={settingId ? "Leave blank to keep current password" : "Enter Shiprocket password"}
+                  required={!settingId}
                 />
                 <button
                   type="button"

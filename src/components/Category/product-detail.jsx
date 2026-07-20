@@ -602,20 +602,20 @@ export default function ProductDetail({ category, subcategory, products }) {
       {/* Filters and Sorting */}
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-          <div className="flex items-center">
+          <div className="flex items-center w-full sm:w-auto flex-wrap gap-2">
             <button
               onClick={() => setFilterOpen(!filterOpen)}
-              className="flex items-center bg-white px-4 py-2 rounded-md shadow-sm border border-gray-200 mr-2"
+              className="flex items-center bg-white px-4 py-2 rounded-md shadow-sm border border-gray-200"
             >
               <SlidersHorizontal className="h-4 w-4 mr-2" />
               <span>Filter</span>
             </button>
 
-            <div className="relative">
+            <div className="relative flex-1 sm:flex-none">
               <select
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value)}
-                className="appearance-none bg-white pl-4 pr-10 py-2 rounded-md shadow-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-200"
+                className="appearance-none bg-white pl-4 pr-10 py-2 rounded-md shadow-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-200 w-full sm:w-auto"
               >
                 {/* <option value="featured">Featured</option> */}
                 <option value="price-low-high">Price: Low to High</option>

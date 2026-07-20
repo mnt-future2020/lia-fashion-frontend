@@ -348,7 +348,7 @@ const Products = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-2 w-full sm:w-auto justify-end">
+                <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-end">
                   <div className="flex gap-2 relative">
                     <Button
                       variant="outline" 
@@ -381,7 +381,7 @@ const Products = () => {
                   </div>
 
                   <Select  value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger  className="w-[180px] bg-[#eb1c75] text-white ">
+                    <SelectTrigger  className="w-full sm:w-[180px] bg-[#eb1c75] text-white ">
                       <SelectValue placeholder="Status">
                         {statusFilter === 'Active' && <span className="text-white-700">Active</span>}
                         {statusFilter === 'Inactive' && <span className="text-white-800">Inactive</span>}

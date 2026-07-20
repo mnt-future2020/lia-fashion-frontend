@@ -77,7 +77,7 @@ export default function EditProductPage() {
         const productData = response.data
 
         // Process colors to add image preview URLs
-        const processedColors = productData.colors.map((color) => ({
+        const processedColors = (productData.colors || []).map((color) => ({
           ...color,
           image: color.cover_image, // Set the image property for preview
         }))
@@ -111,7 +111,7 @@ export default function EditProductPage() {
           fetchSubcategories(productData.category_id)
         }
       } catch (err) {
-        setError("Failed to fetch product details")
+        toast.error("Failed to fetch product details")
         // console.error(err)
       } finally {
         setLoading(false)
@@ -904,7 +904,7 @@ export default function EditProductPage() {
               </div>
 
               {hasTax && (
-                <div className="w-1/2">
+                <div className="w-full sm:w-1/2">
                   <Input
                     type="number"
                     placeholder="Enter tax percentage"
@@ -1073,17 +1073,18 @@ export default function EditProductPage() {
           </div>
 
           <div>
-            <div className="sticky top-0 bg-white p-6 mt-6">
-              <div className="flex gap-2 justify-end mb-4">
-                <Button 
-                  variant="outline" 
+            <div className="sticky top-0 bg-white p-4 sm:p-6 mt-6">
+              <div className="flex flex-col sm:flex-row gap-2 sm:justify-end mb-4">
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-auto"
                   onClick={() => router.push("/admin/dashboard/products")}
                   disabled={isSubmitting}
                 >
                   Cancel
                 </Button>
-                <Button 
-                  className="bg-[#eb1c75] hover:bg-pink-600" 
+                <Button
+                  className="w-full sm:w-auto bg-[#eb1c75] hover:bg-pink-600"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
                 >

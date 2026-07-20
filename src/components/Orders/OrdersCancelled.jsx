@@ -154,7 +154,7 @@ export default function CancelledOrders({ orders, onReorder, transitionInfo, onV
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <div className="rounded-lg border">
           <Table>
             <TableHeader>

@@ -1,11 +1,19 @@
 "use client"
 import { IconBrandWhatsapp } from "@tabler/icons-react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 export function WhatsAppFloat() {
   // Using the provided WhatsApp number
   const whatsappNumber = "919384109680" // Formatted for WhatsApp API (removed spaces and added country code)
   const whatsappLink = `https://wa.me/${whatsappNumber}`
+
+  // Customer-facing chat button — don't show it inside the admin dashboard,
+  // where it would overlap controls like the POS cart bar.
+  const pathname = usePathname()
+  if (pathname?.startsWith("/admin")) {
+    return null
+  }
 
   return (
     <div className="fixed bottom-6 right-6 z-[9999]">

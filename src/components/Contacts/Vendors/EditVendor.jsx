@@ -136,7 +136,7 @@ const EditVendor = ({ id }) => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-[#eb1c75]">

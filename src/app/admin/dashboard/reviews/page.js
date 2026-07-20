@@ -292,7 +292,7 @@ const ReviewManagement = () => {
   ];
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Review Management</h1>
@@ -460,6 +460,8 @@ const ReviewManagement = () => {
           </div>
 
           {/* Table Header */}
+          <div className="w-full overflow-x-auto">
+          <div className="min-w-[900px]">
           <div className="bg-[#e91e63] text-white">
             <div className="grid grid-cols-7 gap-4 p-4 text-sm font-medium">
               <div>Date</div>
@@ -519,6 +521,8 @@ const ReviewManagement = () => {
                 </p>
               </div>
             )}
+          </div>
+          </div>
           </div>
         </CardContent>
       </Card>

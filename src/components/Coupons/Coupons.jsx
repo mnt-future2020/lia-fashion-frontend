@@ -314,8 +314,8 @@ export default function CouponManager() {
               </div>
 
               {/* Table Content */}
-              <div className="rounded-md border">
-                <table className="w-full">
+              <div className="rounded-md border w-full overflow-x-auto">
+                <table className="w-full min-w-[600px]">
                   <thead className="bg-[#eb1c75]">
                     <tr>
                       <th className="py-3 px-4 text-white font-medium">Coupon Name</th>

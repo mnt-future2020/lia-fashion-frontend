@@ -77,7 +77,9 @@ export function UserCartProvider({ children }: { children: ReactNode }) {
       setCartData(data);
       setCartCount(data?.items?.length || 0);
     } catch (error) {
-      // console.error("Failed to fetch cart data:", error);
+      // On failure, fall back to an empty cart so consumers don't hang waiting for data.
+      setCartData(null);
+      setCartCount(0);
     } finally {
       setIsLoading(false);
     }

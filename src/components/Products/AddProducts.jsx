@@ -431,7 +431,7 @@ function AddProductForm() {
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-4 sm:p-6">
       {/* Loading Overlay */}
       {isSubmitting && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -824,7 +824,7 @@ function AddProductForm() {
               </div>
 
               {hasTax && (
-                <div className="w-1/2">
+                <div className="w-full sm:w-1/2">
                   <Input
                     type="number"
                     placeholder="Enter tax percentage"
@@ -994,17 +994,18 @@ function AddProductForm() {
           </div>
 
           <div>
-            <div className="sticky top-0 bg-white p-6 mt-6">
-              <div className="flex gap-2 justify-end mb-4">
-                <Button 
+            <div className="sticky top-0 bg-white p-4 sm:p-6 mt-6">
+              <div className="flex flex-col sm:flex-row gap-2 sm:justify-end mb-4">
+                <Button
                   variant="outline"
+                  className="w-full sm:w-auto"
                   onClick={() => returnUrl ? router.push(returnUrl) : router.push('/admin/dashboard/products')}
                   disabled={isSubmitting}
                 >
                   Cancel
                 </Button>
-                <Button 
-                  className="bg-[#eb1c75] hover:bg-pink-600" 
+                <Button
+                  className="w-full sm:w-auto bg-[#eb1c75] hover:bg-pink-600"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
                 >

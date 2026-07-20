@@ -54,7 +54,7 @@ export default function HeroBanner() {
       <div className="w-full bg-white">
         <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-16">
           <div className="relative w-full h-auto">
-            <div className="w-full h-[175px] sm:h-[350px] md:h-[450px] lg:h-[550px] xl:h-[650px] 2xl:h-[750px] 3xl:h-[850px]">
+            <div className="w-full aspect-[1920/800]">
               <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse rounded-lg sm:rounded-xl lg:rounded-2xl">
                 <div 
                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer rounded-lg sm:rounded-xl lg:rounded-2xl" 
@@ -75,13 +75,13 @@ export default function HeroBanner() {
       <div className="w-full bg-white">
         <div className="max-w-[1920px] mx-auto ">
           <div className="relative w-full h-auto">
-            <div className="w-full h-[175px] sm:h-[350px] md:h-[450px] lg:h-[550px] xl:h-[650px] 2xl:h-[750px] 3xl:h-[850px]">
+            <div className="w-full aspect-[1920/800]">
               <div className="relative w-full h-full overflow-hidden">
                 <Image
-                  src="/assets/banner/banner.jpg" 
+                  src="/assets/banner/banner.jpg"
                   alt="Default Banner"
                   fill
-                  className=""
+                  className="object-cover object-center"
                   sizes="(min-width: 1920px) 1920px, 100vw"
                   priority
                 />
@@ -97,7 +97,7 @@ export default function HeroBanner() {
     <div className="w-full bg-white">
       <div className="max-w-[1920px] mx-auto relative">
         <div className="relative w-full h-auto">
-          <div className="w-full h-[175px] sm:h-[350px] md:h-[450px] lg:h-[550px] xl:h-[650px] 2xl:h-[750px] 3xl:h-[850px]">
+          <div className="w-full aspect-[1920/800]">
             {banners.map((banner, index) => (
               <div
                 key={banner.id}
@@ -110,7 +110,7 @@ export default function HeroBanner() {
                     src={optimizeCloudinary(banner.image)}
                     alt={banner.title || "Banner"}
                     fill
-                    className=""
+                    className="object-cover object-center"
                     sizes="(min-width: 1920px) 1920px, 100vw"
                     priority={index === 0}
                   />

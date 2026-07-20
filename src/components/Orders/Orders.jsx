@@ -962,7 +962,7 @@ export default function OrderManagement() {
             </div>
             
             <div className="py-4">
-              <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
                   <p className="text-gray-500 text-sm">Customer</p>
                   <p className="font-medium">{selectedInvoice.customer}</p>
@@ -972,8 +972,8 @@ export default function OrderManagement() {
                   <p className="font-medium">{selectedInvoice.date}</p>
                 </div>
               </div>
-              
-              <div className="grid grid-cols-2 gap-4 mb-4">
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div className="border rounded-md p-3 bg-gray-50">
                   <h4 className="font-semibold text-sm mb-2 text-gray-700">Billing Address</h4>
                   <div className="text-sm text-gray-600">
@@ -1088,7 +1088,7 @@ export default function OrderManagement() {
               {/* Payment Summary */}
               <div className="border rounded-md p-4 mb-4">
                 <h3 className="font-semibold mb-2">Payment Summary</h3>
-                <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                   <div className="flex justify-between border-b pb-2">
                     <span>Subtotal:</span>
                     <span>₹{Number(selectedInvoice.subtotal || 0).toFixed(2)}</span>

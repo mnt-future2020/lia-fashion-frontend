@@ -609,7 +609,7 @@ const Orders = () => {
             </div>
             
             <div className="py-4">
-              <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
                   <p className="text-gray-500 text-sm">Customer</p>
                   <p className="font-medium">{selectedInvoice.customer}</p>

@@ -388,7 +388,7 @@ const OfflineCustomers = () => {
 
       {/* Order Details Dialog */}
       <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
+        <DialogContent className="w-[95vw] max-w-3xl max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>Customer Order History</DialogTitle>
           </DialogHeader>

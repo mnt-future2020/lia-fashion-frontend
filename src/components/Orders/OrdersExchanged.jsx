@@ -142,7 +142,7 @@ export default function ExchangedOrders({ orders, transitionInfo, onUpdateNote, 
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <div className="rounded-lg border">
           <Table>
             <TableHeader>              <TableRow className="bg-[#eb1c75]">

@@ -116,16 +116,16 @@ export default function AdminPromoPopupsPage() {
   }, [data, searchQuery])
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
       <Header headerName={"Promo Popups"} />
       <h1 className="text-2xl font-semibold mb-4">Promo popups</h1>
 
       {/* Actions */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-2">
-          <Input placeholder="Search by title or message" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-72" />
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Input placeholder="Search by title or message" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full sm:w-72" />
         </div>
-        <Button onClick={startCreate} className="bg-[#eb1c75] hover:bg-pink-600 text-white">
+        <Button onClick={startCreate} className="w-full sm:w-auto bg-[#eb1c75] hover:bg-pink-600 text-white">
           <Plus className="h-4 w-4 mr-2" /> New Popup
         </Button>
       </div>
@@ -204,7 +204,7 @@ export default function AdminPromoPopupsPage() {
                 <label className="text-sm text-gray-600">Target Pages</label>
                 <div className="mt-2 text-sm px-3 py-2 border rounded bg-gray-50">home (fixed)</div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex items-center gap-3">
                   <label className="text-sm text-gray-600 w-24">Title Color</label>
                   <input type="color" value={form.theme?.titleColor || '#166534'} onChange={(e) => setForm({ ...form, theme: { ...form.theme, titleColor: e.target.value } })} className="h-9 w-12 p-0 border rounded" />

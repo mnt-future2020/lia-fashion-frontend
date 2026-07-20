@@ -80,9 +80,12 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch low stock products
+        // Fetch low stock products (endpoint may return an array or a paginated { data: [] })
         const productsResponse = await axios.get('/api/admin/products');
-        const lowStock = productsResponse.data
+        const productList = Array.isArray(productsResponse.data)
+          ? productsResponse.data
+          : (productsResponse.data?.data || []);
+        const lowStock = productList
           .filter(product => product.stock <= 20)
           .slice(0, 5);
         setLowStockProducts(lowStock);
@@ -126,7 +129,7 @@ export default function Dashboard() {
   } = dashboardStats;
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-4 sm:p-6">
       {/* KPI Cards */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -204,12 +207,12 @@ export default function Dashboard() {
 
       {/* Time Range and Charts */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>Revenue Overview</CardTitle>
           </div>
           <Select value={timeRange} onValueChange={handleTimeRangeChange}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px]">
               <div className="flex items-center gap-2">
                 <Calendar className="h-3.5 w-3.5" />
                 <span>Last {timeRange} Months</span>

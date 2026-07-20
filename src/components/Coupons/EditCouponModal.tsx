@@ -107,8 +107,8 @@ export default function EditCouponModal({ isOpen, onClose, coupon, onUpdate }: E
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent 
-        className="max-w-3xl"
+      <DialogContent
+        className="w-[95vw] max-w-3xl max-h-[90vh] overflow-y-auto"
         aria-describedby="dialog-description"
       >
         <DialogHeader>

@@ -20,16 +20,33 @@
   display: flex;
   height: 100vh;
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .adminLayout .mainContent {
   flex: 1;
+  /* min-width: 0 lets the flex child shrink below content size so wide
+     tables/grids scroll within their own wrappers instead of pushing the
+     whole page wider than the viewport on mobile. */
+  min-width: 0;
   padding: 1rem;
   background-color: #f8f8f8;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+
+/* On tablet/mobile the sidebar collapses to a fixed hamburger button
+   (top-4 left-4). Add top clearance so page headers/content don't sit
+   underneath the button. The button is hidden at lg+ where the sidebar
+   is part of the normal flow. */
+@media (max-width: 1023px) {
+  .adminLayout .mainContent {
+    padding-top: 4.5rem;
+  }
 }
 
 .adminLayout .mainContent > *:not(footer) {

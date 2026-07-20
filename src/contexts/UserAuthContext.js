@@ -37,7 +37,7 @@ export function UserAuthProvider({ children }) {
         // Watch for token changes every second
         const tokenWatcher = setInterval(watchToken, 1000);
         
-        const checkAuth = async () => {
+        const checkAuth = async (retryCount = 0) => {
             try {
                 const token = Cookies.get('user-token');
                 console.log('UserAuth: Checking auth, token exists:', !!token);
@@ -82,12 +82,22 @@ export function UserAuthProvider({ children }) {
                         user: null
                     });
                 } else {
-                    console.log('UserAuth: Network error, keeping token for retry');
-                    // For network errors, retry after a delay instead of immediately failing
-                    setTimeout(() => {
-                        checkAuth();
-                    }, 1000);
-                    return; // Don't update state on network errors
+                    // Network/5xx error — retry a FEW times, then STOP loading so the app can
+                    // render (as unauthenticated) instead of showing "Loading..." forever.
+                    if (retryCount < 2) {
+                        console.log('UserAuth: network error, retry', retryCount + 1);
+                        setTimeout(() => {
+                            checkAuth(retryCount + 1);
+                        }, 1000);
+                    } else {
+                        console.warn('UserAuth: could not verify session after retries; rendering as unauthenticated');
+                        setState({
+                            isAuthenticated: false,
+                            isLoading: false,
+                            user: null
+                        });
+                    }
+                    return;
                 }
             }
         };

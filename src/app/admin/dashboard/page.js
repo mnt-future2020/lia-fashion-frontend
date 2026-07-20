@@ -1,20 +1,20 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Header from '@/components/Dashboard/DashboardHeader/DashboardHeader';
 import DashboardContent from '@/components/Dashboard/Dashboard/Dashboard';
 export default function Dashboard() {
-    const [loading, setLoading] = useState(true);
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, isLoading } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
-        if (!isAuthenticated && !loading) {
+        // Only decide once auth has finished loading, so a logged-in admin isn't
+        // bounced to login during the brief initial auth check.
+        if (!isLoading && !isAuthenticated) {
             router.push('/admin/login');
         }
-        setLoading(false);
-    }, [isAuthenticated, router, loading]);
+    }, [isAuthenticated, isLoading, router]);
 
     useEffect(() => {
         // Check if POS was the last active page
@@ -24,8 +24,12 @@ export default function Dashboard() {
         }
     }, [router]);
 
-    if (loading) {
+    if (isLoading) {
         return <div>Loading...</div>;
+    }
+
+    if (!isAuthenticated) {
+        return null; // redirecting to /admin/login
     }
 
     return (

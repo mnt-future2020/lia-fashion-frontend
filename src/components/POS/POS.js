@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useContext } from "react"
-import { Search, ShoppingCart, Minus, Plus, Trash2, Loader2, UserCircle, Clock, Play } from "lucide-react"
+import { Search, ShoppingCart, Minus, Plus, Trash2, Loader2, UserCircle, Clock, Play, ChevronUp, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -120,6 +120,9 @@ const [invoiceNumber, setInvoiceNumber] = useState("")
 const [selectedSizes, setSelectedSizes] = useState({})
 const [selectedColors, setSelectedColors] = useState({})
 const [hideOutOfStock, setHideOutOfStock] = useState(false)
+// Collapse the cart panel on mobile so the product list is easier to browse.
+// Starts collapsed: on mobile the cart is a fixed bottom bar, so products show first.
+const [cartCollapsed, setCartCollapsed] = useState(true)
 
 // Load data from localStorage only after initial render on client side
 const [isClient, setIsClient] = useState(false)
@@ -940,11 +943,11 @@ const handleColorSelection = (productId, colorName) => {
 
 return (
   <div className="min-h-screen bg-white">
-    <header className="bg-white p-4 shadow-sm flex justify-between items-center">
+    <header className="bg-white p-4 shadow-sm flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
       <h1 className="text-2xl font-bold">POS System</h1>
 
       {/* Hold Orders Button & Counter */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
         <Button 
           onClick={() => setResumeDialogOpen(true)} 
           className="bg-pink-600 hover:bg-pink-600 text-white"
@@ -966,9 +969,9 @@ return (
 
     <div className="flex flex-col md:flex-row h-[calc(100vh-64px)]">
       {/* Products Section */}
-      <div className="flex-1 p-4 overflow-auto">
-        <div className="flex gap-4 mb-4">
-          <div className="relative flex-1">
+      <div className="flex-1 p-4 pb-28 overflow-auto md:pb-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 mb-4">
+          <div className="relative w-full sm:flex-1">
             <Search className="absolute left-3 bg-slate-50 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             <Input
               placeholder="Search by product name or SKU code..."
@@ -979,7 +982,7 @@ return (
           </div>
           
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
@@ -998,7 +1001,7 @@ return (
             onValueChange={setSelectedSubCategory}
             disabled={!selectedCategory || selectedCategory === "all"}
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="All Subcategories" />
             </SelectTrigger>
             <SelectContent>
@@ -1012,17 +1015,17 @@ return (
           </Select>
 
           {/* Add a reset button next to the filters */}
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={resetFilters}
-            className="whitespace-nowrap"
+            className="w-full sm:w-auto whitespace-nowrap"
           >
             Reset Filters
           </Button>
-          <Button 
+          <Button
             variant={hideOutOfStock ? "default" : "outline"}
             onClick={() => setHideOutOfStock(!hideOutOfStock)}
-            className="whitespace-nowrap bg-[#eb1c75] text-white hover:bg-pink-600 hover:text-white"
+            className="w-full sm:w-auto whitespace-nowrap bg-[#eb1c75] text-white hover:bg-pink-600 hover:text-white"
           >
             {hideOutOfStock ? "Show All Products" : "Hide Out of Stock"}
           </Button>
@@ -1042,7 +1045,7 @@ return (
             <div className="text-xl">No products found. Try adjusting your filters.</div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {filteredProducts.map((product) => {
               const selectedSize = selectedSizes[product.id];
               const currentPrice = getSizePrice(product, selectedSize);
@@ -1169,33 +1172,52 @@ return (
         )}
       </div>
 
-      {/* Cart Section */}
-      <div className="w-full md:w-[400px] bg-white border-l">
-        <div className="p-4 border-b flex items-center justify-between gap-2">
-          <div className="flex items-center">
-            <ShoppingCart className="mr-2" size={20} />
+      {/* Cart Section — fixed bottom bar on mobile (always reachable), right column on desktop */}
+      <div className="fixed inset-x-0 bottom-0 z-40 flex w-full max-h-[85vh] flex-col bg-white border-t shadow-[0_-4px_12px_rgba(0,0,0,0.12)] md:static md:inset-auto md:z-auto md:max-h-none md:w-[400px] md:flex-none md:border-l md:border-t-0 md:shadow-none">
+        <div className="p-4 border-b flex items-center justify-between gap-2 flex-wrap">
+          {/* Title + count toggle the panel open/closed on mobile */}
+          <button
+            type="button"
+            onClick={() => setCartCollapsed((prev) => !prev)}
+            className="flex items-center gap-2 md:cursor-default"
+            aria-expanded={!cartCollapsed}
+            aria-label={cartCollapsed ? "Show cart" : "Hide cart"}
+          >
+            <ShoppingCart size={20} />
             <h2 className="text-lg font-medium">Customer Cart</h2>
-            </div>
-            <div className="flex items-center">
-            <div className="ml-2 bg-pink-500 text-white px-2 py-1 rounded-xl text-base">
+            <span className="bg-pink-500 text-white px-2 py-1 rounded-xl text-base">
               {cart.reduce((sum, item) => sum + item.quantity, 0)} items
-            </div>
-          </div>
-          {cart.length > 0 && (
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
+            </span>
+            {/* Chevron indicator only on mobile, where the panel can collapse */}
+            <span className="md:hidden text-pink-600">
+              {cartCollapsed ? <ChevronDown size={22} /> : <ChevronUp size={22} />}
+            </span>
+          </button>
+
+          <div className="flex items-center gap-2">
+            {cart.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
                 className="text-red-500 border-red-500"
                 onClick={cancelCurrentOrder}
               >
                 Cancel
               </Button>
-            </div>
-          )}
+            )}
+            {/* Explicit Hide/View Products button on mobile */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="md:hidden border-pink-500 text-pink-600"
+              onClick={() => setCartCollapsed((prev) => !prev)}
+            >
+              {cartCollapsed ? "View Cart" : "View Products"}
+            </Button>
+          </div>
         </div>
 
-        <div className="overflow-auto h-[calc(100vh-350px)]">
+        <div className={`${cartCollapsed ? "hidden md:block" : ""} overflow-auto max-h-[45vh] md:max-h-none md:h-[calc(100vh-350px)]`}>
           {cart.length === 0 ? (
             <div className="p-8 text-center text-gray-500">Cart is empty. Add products to get started.</div>
           ) : (
@@ -1205,7 +1227,7 @@ return (
                 const itemTax = item.product.taxPercentage || 0;
                 
                 return (
-                  <div key={`${item.product.id}-${item.selectedSize}-${item.selectedColor || 'no-color'}`} className="p-4 flex items-center">
+                  <div key={`${item.product.id}-${item.selectedSize}-${item.selectedColor || 'no-color'}`} className="p-4 flex items-center flex-wrap gap-y-2">
                     <div className="w-12 h-12 bg-gray-100 rounded mr-3">
                       <img
                         src={item.product.image || "/placeholder.svg"}
@@ -1274,7 +1296,7 @@ return (
           )}
         </div>
 
-        <div className="border-t p-4">
+        <div className={`${cartCollapsed ? "hidden md:block" : ""} border-t p-4`}>
           <div className="space-y-2 mb-4">
             <div className="flex justify-between">
               <span>Subtotal</span>

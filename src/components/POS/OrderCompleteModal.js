@@ -631,7 +631,7 @@ export default function OrderCompleteModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg w-full max-w-xl relative max-h-[90vh] overflow-auto">
         <button onClick={onClose} className="absolute right-4 top-4 text-gray-500 hover:text-gray-700">
           <X size={20} />
@@ -762,7 +762,7 @@ export default function OrderCompleteModal({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-center gap-4 mt-6">
+          <div className="flex flex-wrap justify-center gap-4 mt-6">
             <Button 
               onClick={handlePrint} 
               className="bg-[#eb1c75] hover:bg-[#d1007d] text-white"

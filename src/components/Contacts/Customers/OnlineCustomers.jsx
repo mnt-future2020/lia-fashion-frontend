@@ -52,7 +52,7 @@ const OnlineCustomers = () => {
       try {
         setLoading(true)
         const response = await axios.get('/api/admin/users')
-        setCustomers(response.data)
+        setCustomers(Array.isArray(response.data) ? response.data : (response.data?.data || []))
         setError(null)
       } catch (err) {
         // console.error('Error fetching customers:', err)

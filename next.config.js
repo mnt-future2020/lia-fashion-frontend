@@ -20,15 +20,20 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
-      
+      {
+        protocol: 'https',
+        hostname: '**.digitaloceanspaces.com',
+        pathname: '/**',
+      },
     ],
   },
-  // Add rewrites for API proxy
+  // Add rewrites for API proxy (uses NEXT_PUBLIC_BACKEND_URL so local dev hits the local backend)
   async rewrites() {
+    const backend = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.liafashion.in'
     return [
       {
         source: '/api/:path*',
-        destination: 'https://api.liafashion.in/api/:path*', // Proxy to Laravel backend
+        destination: `${backend}/api/:path*`, // Proxy to Laravel backend
       },
     ]
   },

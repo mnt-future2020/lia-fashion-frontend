@@ -65,6 +65,10 @@ export default function PaymentGatewaySettings() {
         additional_settings: JSON.stringify(settings.additional_settings || {})
       };
 
+      // Omit empty secrets when editing — the backend keeps the stored values.
+      if (!dataToSend.key_secret) delete dataToSend.key_secret;
+      if (!dataToSend.webhook_secret) delete dataToSend.webhook_secret;
+
       const response = await axios[method](url, dataToSend);
 
       if (response.data.status === 'success') {
@@ -110,8 +114,8 @@ export default function PaymentGatewaySettings() {
                   type={showSecret ? "text" : "password"}
                   value={settings.key_secret}
                   onChange={(e) => handleChange('key_secret', e.target.value)}
-                  placeholder="Enter Razorpay Key Secret"
-                  required
+                  placeholder={settingId ? "Leave blank to keep current secret" : "Enter Razorpay Key Secret"}
+                  required={!settingId}
                   className="pr-10"
                 />
                 <button
@@ -132,7 +136,7 @@ export default function PaymentGatewaySettings() {
                   type={showSecret ? "text" : "password"}
                   value={settings.webhook_secret || ''}
                   onChange={(e) => handleChange('webhook_secret', e.target.value)}
-                  placeholder="Enter Razorpay Webhook Secret"
+                  placeholder={settingId ? "Leave blank to keep current" : "Enter Razorpay Webhook Secret"}
                   className="pr-10"
                 />
                 <button

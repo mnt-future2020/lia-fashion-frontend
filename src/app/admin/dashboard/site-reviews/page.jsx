@@ -71,7 +71,7 @@ export default function AdminSiteReviewsPage() {
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
         <Header headerName={"Website Reviews"} />
       <h1 className="text-2xl font-semibold mb-4">Site reviews</h1>
 
@@ -89,14 +89,14 @@ export default function AdminSiteReviewsPage() {
           </select>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <span className="text-sm">Search:</span>
           <input
             type="text"
             placeholder="Search by name or review..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="border rounded px-3 py-1 min-w-[250px] focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300"
+            className="border rounded px-3 py-1 w-full sm:min-w-[250px] focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300"
           />
         </div>
       </div>

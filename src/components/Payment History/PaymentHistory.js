@@ -853,18 +853,18 @@ export default function PaymentHistory() {
     <div className="w-full max-w-9xl mx-auto p-4">
       <div className="flex flex-col gap-4">
         {/* Search and filters */}
-        <div className="flex flex-wrap gap-2 justify-between">
-          <div className="relative">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:justify-between">
+          <div className="relative w-full sm:w-auto">
             <Input
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 w-[200px]"
+              className="pl-8 w-full sm:w-[200px]"
             />
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
             {/* <Button
               variant="outline"
               className="bg-gray-100"
@@ -1072,7 +1072,7 @@ export default function PaymentHistory() {
             </div>
             
             <div className="py-4">
-              <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
                   <p className="text-gray-500 text-sm">Customer</p>
                   <p className="font-medium">{selectedInvoice.customer}</p>
@@ -1085,7 +1085,7 @@ export default function PaymentHistory() {
 
                              {/* Address Section - Only show for Online transactions */}
                {selectedInvoice.type !== 'POS' && (
-                 <div className="grid grid-cols-2 gap-4 mb-4">
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                    <div className="border rounded-md p-3 bg-gray-50">
                      <h4 className="font-semibold text-sm mb-2 text-gray-700">Billing Address</h4>
                      <div className="text-sm text-gray-600">

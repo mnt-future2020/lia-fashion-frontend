@@ -231,15 +231,15 @@ const ViewVendor = ({ id }) => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-2xl font-bold text-[#eb1c75] flex items-center gap-2">
             <Dialog>
               <DialogTrigger>
                 <BookUser className="w-10 h-10 p-2 rounded bg-[#eb1c75] text-white cursor-pointer hover:bg-pink-500" />
               </DialogTrigger>
-              <DialogContent className="w-[350px] sm:w-[425px]">
+              <DialogContent className="w-[95vw] max-w-[425px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="text-lg font-semibold">Vendor Profile</DialogTitle>
                 </DialogHeader>
