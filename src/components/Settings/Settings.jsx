@@ -7,6 +7,7 @@ import PaymentGateway from "./PaymentGateway"
 import Shipping from "./Shipping"
 import InvoiceSettings from "./InvoiceSettings"
 import Cloudinary from "./Cloudinary"
+import Storage from "./Storage"
 import Banner from "./Banner"
 import Shiprocket from "./Shiprocket"
 
@@ -21,7 +22,10 @@ const Settings = () => {
     { key: "Shipping", title: "Shipping" },
     { key: "Order Management", title: "Order Management" },
     { key: "Shiprocket", title: "Shiprocket" },
-    { key: "Cloudinary", title: "Cloudinary" },
+    // Storage (R2) is where new uploads go. Cloudinary is kept only so existing
+    // credentials remain viewable for images already hosted there.
+    { key: "Storage", title: "Storage (R2)" },
+    { key: "Cloudinary", title: "Cloudinary (legacy)" },
     { key: "Banners", title: "Banners" }
   ]
   const renderContent = () => {
@@ -36,6 +40,8 @@ const Settings = () => {
         return <InvoiceSettings />
       case "Shiprocket":
         return <Shiprocket />
+      case "Storage":
+        return <Storage />
       case "Cloudinary":
         return <Cloudinary />
       case "Banners":
@@ -51,7 +57,7 @@ const Settings = () => {
         {/* Navigation Tabs */}
         <div className="flex justify-center mb-6 md:mb-8">
           <div className="bg-white rounded-lg p-1 shadow-sm border w-full">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1">
               {tabs.map((tab) => (
                 <button
                   key={tab.key}

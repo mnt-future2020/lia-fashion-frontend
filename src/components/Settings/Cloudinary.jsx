@@ -120,11 +120,13 @@ export default function Cloudinary() {
                             <Input
                                 id="apiSecret"
                                 type="password"
-                                placeholder="API Secret"
+                                placeholder="Leave blank to keep the current secret"
                                 value={formData.cloudinary_api_secret || ''}
                                 onChange={(e) => setFormData(prev => ({ ...prev, cloudinary_api_secret: e.target.value }))}
-                                required
                             />
+                            <p className="text-xs text-muted-foreground">
+                                The stored secret is never sent to the browser. Leave this blank to keep it unchanged.
+                            </p>
                         </div>
                     </div>
 

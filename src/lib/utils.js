@@ -4,13 +4,32 @@ import { twMerge } from "tailwind-merge"
 export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
-// Optimize images via Cloudinary — handles both Cloudinary-hosted and external URLs
+// Image URL helper used by every <Image> on the site.
+//
+// Routing by host:
+//   - Cloudflare R2 / DigitalOcean Spaces  -> returned untouched. These are our own stores
+//     and already serve over a CDN; they are also pre-optimised at upload (WebP + resize),
+//     so proxying them through Cloudinary Fetch would add a hop and burn Cloudinary
+//     bandwidth for images not even hosted there.
+//   - res.cloudinary.com                   -> legacy images; keep and add f_auto,q_auto.
+//   - anything else                        -> unchanged: optimise via Cloudinary Fetch.
 export function optimizeCloudinary(url) {
   if (!url || typeof url !== 'string') return url;
   // Skip local/relative paths (assets, placeholders)
   if (url.startsWith('/') || url.startsWith('data:')) return url;
   try {
     const u = new URL(url);
+
+    // Our own object storage (R2 / Spaces / custom CDN domain) — serve straight from its CDN.
+    if (
+      u.hostname.includes('r2.dev') ||
+      u.hostname.includes('r2.cloudflarestorage.com') ||
+      u.hostname.includes('digitaloceanspaces.com') ||
+      u.hostname.includes('cdn.liafashion.in')
+    ) {
+      return url;
+    }
+
     // Already a Cloudinary URL — inject f_auto,q_auto if missing
     if (u.hostname.includes('res.cloudinary.com')) {
       const marker = '/image/upload/';

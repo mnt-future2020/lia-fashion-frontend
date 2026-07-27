@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { SquarePen, Trash2, Upload, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import DeleteConfirmation from "@/components/DeleteConfirmation/Confirmation";
 import { cn } from '@/lib/utils';
+import { compressImage } from "@/lib/imageCompression";
 
 export default function Category() {
     const [mode, setMode] = useState('category'); // 'category' or 'subcategory'
@@ -46,21 +47,24 @@ export default function Category() {
     // Regex patterns for validation
     const nameRegex = /^[A-Za-z0-9\s\-_]{2,50}$/;
 
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            // Validate file size (max 2MB)          
-             if (file.size > 10 * 1024 * 1024) {
-                toast.error('Image size should not exceed 10MB');
-                return;
-            }
-            
+    const handleImageChange = async (e) => {
+        const rawFile = e.target.files[0];
+        if (rawFile) {
             // Validate file type
-            if (!['image/jpeg', 'image/png', 'image/gif','image/webp'].includes(file.type)) {
+            if (!['image/jpeg', 'image/png', 'image/gif','image/webp'].includes(rawFile.type)) {
                 toast.error('Only JPEG, PNG, GIF and WEBP images are allowed');
                 return;
             }
-            
+
+            // Compress + convert to WebP in the browser before upload.
+            let file;
+            try {
+                file = await compressImage(rawFile);
+            } catch (err) {
+                toast.error(err.message || 'Could not process this image');
+                return;
+            }
+
             setFormData(prev => ({ ...prev, image: file }));
             setPreview(URL.createObjectURL(file));
             setErrors(prev => ({ ...prev, image: '' }));
@@ -807,21 +811,24 @@ function EditCategoryDialog({ isOpen, onClose, category, mode, categories, onSav
         }
     }, [category]);
 
-    const handleImageUpload = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            // Validate file size (max 2MB)
-            if (file.size > 2 * 1024 * 1024) {
-                toast.error('Image size should not exceed 2MB');
-                return;
-            }
-            
+    const handleImageUpload = async (e) => {
+        const rawFile = e.target.files[0];
+        if (rawFile) {
             // Validate file type
-            if (!['image/jpeg', 'image/png', 'image/gif','image/webp'].includes(file.type)) {
-                toast.error('Only JPEG, PNG and GIF images are allowed');
+            if (!['image/jpeg', 'image/png', 'image/gif','image/webp'].includes(rawFile.type)) {
+                toast.error('Only JPEG, PNG, GIF and WEBP images are allowed');
                 return;
             }
-            
+
+            // Compress + convert to WebP in the browser before upload (handles the size cap too).
+            let file;
+            try {
+                file = await compressImage(rawFile);
+            } catch (err) {
+                toast.error(err.message || 'Could not process this image');
+                return;
+            }
+
             setEditedData(prev => ({ ...prev, newImage: file }));
             setPreviewImage(URL.createObjectURL(file));
             setErrors(prev => ({ ...prev, image: '' })); // Clear any image error

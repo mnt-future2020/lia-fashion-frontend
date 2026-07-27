@@ -574,22 +574,50 @@ const CheckoutPage = () => {  const { cartData, isLoading, updateCartData, valid
         name: orderResponse.data.name,
         description: orderResponse.data.description,
         order_id: orderResponse.data.order_id,
-        handler: async function(_response) {
+        handler: async function(response) {
           try {
-            setPaymentDetails(prev => ({ 
-              ...prev, 
+            setPaymentDetails(prev => ({
+              ...prev,
               processing: true,
-              error: null 
+              error: null
             }));
 
-            // Show success message immediately - actual processing will happen in webhook
-            toast.success('Payment received! Your order will be processed shortly.');
+            // Confirm the payment with our backend straight away. This is the primary path
+            // that creates the Order, decrements stock and records coupon usage; the Razorpay
+            // webhook is only a fallback. Both are idempotent server-side, so it is safe for
+            // them to race. Previously this handler skipped verification entirely, which meant
+            // a customer could be charged and never get an order if the webhook never landed.
+            try {
+              await paymentService.verifyPayment({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                transaction_id: transactionId,
+                shipping_details: {
+                  name: contactInfo.fullName,
+                  email: contactInfo.email,
+                  phone: contactInfo.mobile,
+                  address: shippingAddress.addressLine1,
+                  city: shippingAddress.city,
+                  district: shippingAddress.district,
+                  state: shippingAddress.state,
+                  country: shippingAddress.country,
+                  pin_code: shippingAddress.pincode,
+                }
+              });
+              toast.success('Payment successful! Your order has been placed.');
+            } catch (verifyError) {
+              // The money has already been captured by Razorpay at this point, so never tell
+              // the customer the payment failed. The webhook will complete the order.
+              console.error('Payment verification call failed, falling back to webhook:', verifyError);
+              toast.success('Payment received! Your order will be confirmed shortly.');
+            }
 
             // Clear cart and redirect
             try {
               await axios.delete('/api/cart/clear');
               await updateCartData();
-              
+
               // Set success and redirect after a short delay
               setPaymentSuccess(true);
               setTimeout(() => {

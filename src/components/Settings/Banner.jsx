@@ -10,6 +10,7 @@ import axios from '../../lib/axios'
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
 import { toast } from "react-hot-toast"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { compressImage } from "@/lib/imageCompression"
 
 export default function BannerSettings() {
   const [currentPage, setCurrentPage] = useState(1)
@@ -39,9 +40,17 @@ export default function BannerSettings() {
     }
   }
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
+      const rawFile = e.target.files[0]
+      // Compress + convert to WebP in the browser before upload.
+      let file
+      try {
+        file = await compressImage(rawFile)
+      } catch (err) {
+        toast.error(err.message || 'Could not process this image')
+        return
+      }
       setBannerFile(file)
       // For preview
       const url = URL.createObjectURL(file)

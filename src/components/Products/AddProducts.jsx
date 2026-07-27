@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dialog" 
 import { ColorPicker } from "@/components/ui/color-picker"
 import RichTextEditor from "@/components/ui/rich-text-editor"
+import { uploadImageToStorage } from "@/lib/uploadToStorage"
 
 const MAX_OTHER_IMAGES = 3;
 const IMAGE_REGEX = /\.(jpg|jpeg|png|webp|gif)$/i;
@@ -64,6 +65,10 @@ function AddProductForm() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showBulkDiscount, setShowBulkDiscount] = useState(false);
+  // Per-cover-slot + additional-images upload spinners. Images upload to R2 the moment they
+  // are picked, so the final submit only sends URLs.
+  const [uploadingCover, setUploadingCover] = useState({});
+  const [uploadingOther, setUploadingOther] = useState(false);
 
   const validateForm = () => {
     const errors = {};
@@ -194,29 +199,33 @@ function AddProductForm() {
     setProduct({ ...product, colors });
   };
 
-  const handleImageUpload = (index, e) => {
+  const handleImageUpload = async (index, e) => {
     if (e.target.files?.[0]) {
-      const file = e.target.files[0];
+      const rawFile = e.target.files[0];
 
       // Check file type using regex
-      if (!IMAGE_REGEX.test(file.name)) {
+      if (!IMAGE_REGEX.test(rawFile.name)) {
         toast.error('Only JPG, PNG, WEBP and GIF images are allowed');
         return;
       }
 
-      // Check file size (10MB limit)
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error('Image size should not exceed 10MB');
-        return;
+      // Upload to R2 immediately (compressed in the browser first, then optimised again on the
+      // server). We store the returned URL, not the file, so the final submit only sends URLs.
+      setUploadingCover(prev => ({ ...prev, [index]: true }));
+      try {
+        const url = await uploadImageToStorage(rawFile, 'products');
+        const colors = [...product.colors];
+        colors[index] = {
+          ...colors[index],
+          cover_image: url, // now a URL string, not a File
+          image: url
+        };
+        setProduct({ ...product, colors });
+      } catch (err) {
+        toast.error(err.message || 'Image upload failed. Please try again.');
+      } finally {
+        setUploadingCover(prev => ({ ...prev, [index]: false }));
       }
-
-      const colors = [...product.colors];
-      colors[index] = {
-        ...colors[index],
-        cover_image: file,
-        image: URL.createObjectURL(file)
-      };
-      setProduct({ ...product, colors });
     }
   };
 
@@ -236,7 +245,7 @@ function AddProductForm() {
     return true;
   };
 
-  const handleOtherImageUpload = (e) => {
+  const handleOtherImageUpload = async (e) => {
     if (e.target.files) {
       // Check current number of images
       const remainingSlots = MAX_OTHER_IMAGES - otherImages.length;
@@ -246,16 +255,26 @@ function AddProductForm() {
       }
 
       // Validate and filter files
-      const filesToAdd = Array.from(e.target.files)
+      const validFiles = Array.from(e.target.files)
         .slice(0, remainingSlots)
         .filter(validateImageFile);
 
-      if (filesToAdd.length === 0) return;
+      if (validFiles.length === 0) return;
 
-      const newImages = filesToAdd.map(file => ({
-        url: URL.createObjectURL(file),
-        file: file
-      }));
+      // Upload each to R2 immediately; store the returned URL (used for preview and submit).
+      setUploadingOther(true);
+      const newImages = [];
+      for (const rawFile of validFiles) {
+        try {
+          const url = await uploadImageToStorage(rawFile, 'products');
+          newImages.push({ url, uploaded: true });
+        } catch (err) {
+          toast.error(err.message || 'An image failed to upload');
+        }
+      }
+      setUploadingOther(false);
+
+      if (newImages.length === 0) return;
 
       setOtherImages([...otherImages, ...newImages]);
 
@@ -375,10 +394,10 @@ function AddProductForm() {
       product.discounted_price = '';
     }
 
-    // Add other images to the first color
+    // Add other images to the first color — now URL strings (already uploaded to R2).
     if (otherImages.length > 0) {
       otherImages.forEach((image, index) => {
-        formData.append(`colors[0][other_images][${index}]`, image.file);
+        formData.append(`colors[0][other_images][${index}]`, image.url);
       });
     }
 
@@ -581,7 +600,9 @@ function AddProductForm() {
                         <div className="flex flex-col gap-4 items-center">
                           <div className="w-24 h-24 md:w-32 md:h-32 bg-slate-50 rounded-md flex items-center justify-center overflow-hidden border-2 border-dotted border-gray-400">
                             <label htmlFor={`image-upload-${index}`} className="cursor-pointer w-full h-full flex items-center justify-center">
-                              {item.image ? (
+                              {uploadingCover[index] ? (
+                                <Loader2 className="h-8 w-8 text-gray-400 animate-spin" />
+                              ) : item.image ? (
                                 <div className="relative w-full h-full group">
                                   <Image
                                     src={item.image}
@@ -657,7 +678,11 @@ function AddProductForm() {
                   {otherImages.length < MAX_OTHER_IMAGES && (
                     <label htmlFor="other-image-upload" className="cursor-pointer">
                       <div className="w-24 h-24 bg-slate-50 rounded-md flex items-center justify-center border-2 border-dotted border-gray-400 hover:bg-slate-100">
-                        <Upload className="h-8 w-8 text-gray-400" />
+                        {uploadingOther ? (
+                          <Loader2 className="h-8 w-8 text-gray-400 animate-spin" />
+                        ) : (
+                          <Upload className="h-8 w-8 text-gray-400" />
+                        )}
                       </div>
                       <input
                         id="other-image-upload"
@@ -1007,7 +1032,7 @@ function AddProductForm() {
                 <Button
                   className="w-full sm:w-auto bg-[#eb1c75] hover:bg-pink-600"
                   onClick={handleSubmit}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || uploadingOther || Object.values(uploadingCover).some(Boolean)}
                 >
                   {isSubmitting ? 'Saving...' : 'Save'}
                 </Button>

@@ -58,12 +58,19 @@
   }
 }
 
+/*
+ * Sweep the gradient across the element via background-position, NOT transform: translateX.
+ * translateX(100%) pushed the shimmer overlay past the right edge of its container; because the
+ * skeleton's parents don't clip, that overflowed the page and produced a horizontal scrollbar
+ * while the banner was loading. background-position animates the gradient in place (the element
+ * already sets `background-size: 200% 100%`), so nothing moves outside its bounds.
+ */
 @keyframes shimmer {
   0% {
-    transform: translateX(-100%);
+    background-position: 200% 0;
   }
   100% {
-    transform: translateX(100%);
+    background-position: -200% 0;
   }
 }
 

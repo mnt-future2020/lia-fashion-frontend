@@ -25,6 +25,22 @@ const nextConfig = {
         hostname: '**.digitaloceanspaces.com',
         pathname: '/**',
       },
+      // Cloudflare R2 — public dev URL, S3 endpoint, and the future custom CDN domain.
+      {
+        protocol: 'https',
+        hostname: '**.r2.dev',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.r2.cloudflarestorage.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.liafashion.in',
+        pathname: '/**',
+      },
     ],
   },
   // Add rewrites for API proxy (uses NEXT_PUBLIC_BACKEND_URL so local dev hits the local backend)

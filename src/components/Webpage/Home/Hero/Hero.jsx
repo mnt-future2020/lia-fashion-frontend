@@ -55,9 +55,9 @@ export default function HeroBanner() {
         <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-16">
           <div className="relative w-full h-auto">
             <div className="w-full aspect-[1920/800]">
-              <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse rounded-lg sm:rounded-xl lg:rounded-2xl">
-                <div 
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer rounded-lg sm:rounded-xl lg:rounded-2xl" 
+              <div className="absolute inset-0 overflow-hidden bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse rounded-lg sm:rounded-xl lg:rounded-2xl">
+                <div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer rounded-lg sm:rounded-xl lg:rounded-2xl"
                   style={{ backgroundSize: '200% 100%' }}
                 />
               </div>

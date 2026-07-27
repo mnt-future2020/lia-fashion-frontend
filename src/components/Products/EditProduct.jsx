@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dialog"
 import { ColorPicker } from "@/components/ui/color-picker"
 import RichTextEditor from "@/components/ui/rich-text-editor"
+import { uploadImageToStorage } from "@/lib/uploadToStorage"
 
 const MAX_OTHER_IMAGES = 3;
 const IMAGE_REGEX = /\.(jpg|jpeg|png|webp|gif)$/i;
@@ -57,6 +58,9 @@ export default function EditProductPage() {
   const [otherImages, setOtherImages] = useState([])
   const [showCoverImageDialog, setShowCoverImageDialog] = useState(false)
   const [imagePreview, setImagePreview] = useState({})
+  // Images upload to R2 the moment they are picked; these drive the per-slot spinners.
+  const [uploadingCover, setUploadingCover] = useState({})
+  const [uploadingOther, setUploadingOther] = useState(false)
   const [validation, setValidation] = useState({
     name: '',
     sku_code: '',
@@ -215,41 +219,39 @@ export default function EditProductPage() {
     setProduct({ ...product, colors })
   }
 
-  const handleImageUpload = (index, e) => {
+  const handleImageUpload = async (index, e) => {
     if (e.target.files?.[0]) {
-      const file = e.target.files[0];
+      const rawFile = e.target.files[0];
 
       // Check file type using regex
-      if (!IMAGE_REGEX.test(file.name)) {
+      if (!IMAGE_REGEX.test(rawFile.name)) {
         toast.error('Only JPG, PNG, WEBP and GIF images are allowed');
         return;
       }
 
-      // Check file size (10MB limit)
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error('Image size should not exceed 10MB');
-        return;
+      // Upload to R2 immediately; store the returned URL. On submit only URLs are sent.
+      setUploadingCover(prev => ({ ...prev, [index]: true }));
+      try {
+        const url = await uploadImageToStorage(rawFile, 'products');
+
+        setImagePreview((prev) => ({ ...prev, [`color_${index}`]: url }));
+
+        const colors = [...product.colors];
+        colors[index] = {
+          ...colors[index],
+          cover_image: url, // URL string — submit sends it as existing_cover_image (kept)
+          image: url,
+        };
+        setProduct({ ...product, colors });
+      } catch (err) {
+        toast.error(err.message || 'Image upload failed. Please try again.');
+      } finally {
+        setUploadingCover(prev => ({ ...prev, [index]: false }));
       }
-
-      const previewUrl = URL.createObjectURL(file);
-
-      // Update imagePreview state to track the URL
-      setImagePreview((prev) => ({
-        ...prev,
-        [`color_${index}`]: previewUrl,
-      }));
-
-      const colors = [...product.colors];
-      colors[index] = {
-        ...colors[index],
-        cover_image: file,
-        image: previewUrl,
-      };
-      setProduct({ ...product, colors });
     }
   };
 
-  function handleOtherImageUpload(e) {
+  async function handleOtherImageUpload(e) {
     if (e.target.files) {
       // Check current number of images
       const remainingSlots = MAX_OTHER_IMAGES - otherImages.length;
@@ -259,7 +261,7 @@ export default function EditProductPage() {
       }
 
       // Validate and filter files
-      const filesToAdd = Array.from(e.target.files)
+      const validFiles = Array.from(e.target.files)
         .slice(0, remainingSlots)
         .filter(file => {
           // Check file type using regex
@@ -267,22 +269,25 @@ export default function EditProductPage() {
             toast.error('Only JPG, PNG, WEBP and GIF images are allowed');
             return false;
           }
-
-          // Check file size (10MB limit)
-          if (file.size > 10 * 1024 * 1024) {
-            toast.error('Image size should not exceed 10MB');
-            return false;
-          }
-
           return true;
         });
 
-      if (filesToAdd.length === 0) return;
+      if (validFiles.length === 0) return;
 
-      const newImages = filesToAdd.map(file => ({
-        url: URL.createObjectURL(file),
-        file: file
-      }));
+      // Upload each to R2 immediately; store the returned URL (no local File kept).
+      setUploadingOther(true);
+      const newImages = [];
+      for (const rawFile of validFiles) {
+        try {
+          const url = await uploadImageToStorage(rawFile, 'products');
+          newImages.push({ url }); // no `file` → submit sends it as existing_other_images (kept)
+        } catch (err) {
+          toast.error(err.message || 'An image failed to upload');
+        }
+      }
+      setUploadingOther(false);
+
+      if (newImages.length === 0) return;
 
       setOtherImages([...otherImages, ...newImages]);
 
@@ -662,7 +667,9 @@ export default function EditProductPage() {
                               htmlFor={`image-upload-${index}`}
                               className="cursor-pointer w-full h-full flex items-center justify-center"
                             >
-                              {item.image ? (
+                              {uploadingCover[index] ? (
+                                <Loader2 className="h-8 w-8 text-gray-400 animate-spin" />
+                              ) : item.image ? (
                                 <div className="relative w-full h-full group">
                                   <Image
                                     src={item.image || "/placeholder.svg"}
@@ -670,7 +677,6 @@ export default function EditProductPage() {
                                     width={96}
                                     height={96}
                                     className="w-full h-full object-cover group-hover:opacity-50 transition-opacity"
-                                    crossOrigin="anonymous"
                                     priority={index === 0}  // Add priority for first/cover image
                                   />
                                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -741,7 +747,11 @@ export default function EditProductPage() {
                   {otherImages.length < MAX_OTHER_IMAGES && (
                     <label htmlFor="other-image-upload" className="cursor-pointer">
                       <div className="w-24 h-24 bg-slate-50 rounded-md flex items-center justify-center border-2 border-dotted border-gray-400 hover:bg-slate-100">
-                        <Upload className="h-8 w-8 text-gray-400" />
+                        {uploadingOther ? (
+                          <Loader2 className="h-8 w-8 text-gray-400 animate-spin" />
+                        ) : (
+                          <Upload className="h-8 w-8 text-gray-400" />
+                        )}
                       </div>
                       <input
                         id="other-image-upload"
@@ -1086,7 +1096,7 @@ export default function EditProductPage() {
                 <Button
                   className="w-full sm:w-auto bg-[#eb1c75] hover:bg-pink-600"
                   onClick={handleSubmit}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || uploadingOther || Object.values(uploadingCover).some(Boolean)}
                 >
                   {isSubmitting ? 'Updating...' : 'Update Product'}
                 </Button>

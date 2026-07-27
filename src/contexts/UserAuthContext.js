@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import axios from '../lib/axios';
+import { setUserToken } from '../lib/auth';
 
 const UserAuthContext = createContext({
     isAuthenticated: false,
@@ -73,7 +74,7 @@ export function UserAuthProvider({ children }) {
                 // Don't clear on network errors that might happen during page refresh
                 if (error.response?.status === 401 || error.response?.status === 403) {
                     // console.log('UserAuth: Invalid token, clearing auth data');
-                    Cookies.remove('user-token');
+                    Cookies.remove('user-token', { path: '/' });
                     delete axios.defaults.headers.common['Authorization'];
                     
                     setState({
@@ -115,8 +116,8 @@ export function UserAuthProvider({ children }) {
     }, [state.isAuthenticated]); // Add state.isAuthenticated as dependency for watchToken
 
     const setAuth = (token, userData) => {
-        // Set token in cookie
-        Cookies.set('user-token', token, { expires: 7 });
+        // Set token in cookie (shared helper applies path/sameSite/secure consistently)
+        setUserToken(token);
         
         // Set token in axios headers
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -137,7 +138,7 @@ export function UserAuthProvider({ children }) {
             // console.error('Logout error:', _error);
         } finally {
             // Clear everything regardless of API call success
-            Cookies.remove('user-token');
+            Cookies.remove('user-token', { path: '/' });
             delete axios.defaults.headers.common['Authorization'];
             setState({
                 isAuthenticated: false,

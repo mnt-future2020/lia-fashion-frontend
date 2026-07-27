@@ -110,10 +110,13 @@ export const paymentService = {
       phone: string;
       address: string;
       city: string;
+      district?: string;
       state: string;
       country: string;
       pin_code: string;
-      order_items: Array<{
+      // Optional: the backend builds Shiprocket line items from the payment metadata,
+      // so the caller does not need to resend them.
+      order_items?: Array<{
         name: string;
         sku: string;
         quantity: number;
@@ -249,7 +252,8 @@ export const paymentService = {
     };
   }> => {
     try {
-      const response = await axios.get('/api/razorpay/pending-payments');
+      // Admin-only: exposes every user's pending payments.
+      const response = await axios.get('/api/admin/razorpay/pending-payments');
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError;
@@ -292,7 +296,8 @@ export const paymentService = {
     };
   }> => {
     try {
-      const response = await axios.post('/api/razorpay/verify-pending-payments');
+      // Admin-only: re-runs order creation for every pending payment.
+      const response = await axios.post('/api/admin/razorpay/verify-pending-payments');
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError;
