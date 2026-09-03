@@ -351,6 +351,9 @@ export default function EditProductPage() {
     setOtherImages(otherImages.filter((_, i) => i !== index))
   }
 
+  // 0 is a valid value (e.g. out-of-stock), so only treat blank/null/undefined as empty
+  const isFilled = (value) => value !== '' && value !== null && value !== undefined
+
   const validateForm = () => {
     const errors = {};
     
@@ -370,17 +373,17 @@ export default function EditProductPage() {
     if (hasMultipleOptions && product.sizes.length > 0) {
       product.sizes.forEach((size, index) => {
         // Check if size has any data (not completely empty)
-        const hasData = size.size || size.purchase_price || size.mrp || size.selling_price || size.stock;
+        const hasData = [size.size, size.purchase_price, size.mrp, size.selling_price, size.stock].some(isFilled);
         
         if (hasData) {
           // If size has some data, validate all required fields
           if (!size.size) errors[`sizes[${index}].size`] = 'Size is required';
           if (!size.mrp) errors[`sizes[${index}].mrp`] = 'MRP is required';
           if (!size.selling_price) errors[`sizes[${index}].selling_price`] = 'Selling price is required';
-          if (!size.stock) errors[`sizes[${index}].stock`] = 'Stock is required';
+          if (!isFilled(size.stock)) errors[`sizes[${index}].stock`] = 'Stock is required';
           
           // Validate numeric values
-          if (size.purchase_price && (isNaN(size.purchase_price) || parseFloat(size.purchase_price) < 0)) {
+          if (isFilled(size.purchase_price) && (isNaN(size.purchase_price) || parseFloat(size.purchase_price) < 0)) {
             errors[`sizes[${index}].purchase_price`] = 'Purchase price must be a valid positive number';
           }
           if (size.mrp && (isNaN(size.mrp) || parseFloat(size.mrp) < 0)) {
@@ -389,7 +392,7 @@ export default function EditProductPage() {
           if (size.selling_price && (isNaN(size.selling_price) || parseFloat(size.selling_price) < 0)) {
             errors[`sizes[${index}].selling_price`] = 'Selling price must be a valid positive number';
           }
-          if (size.stock && (isNaN(size.stock) || parseFloat(size.stock) < 0 || !Number.isInteger(parseFloat(size.stock)))) {
+          if (isFilled(size.stock) && (isNaN(size.stock) || parseFloat(size.stock) < 0 || !Number.isInteger(parseFloat(size.stock)))) {
             errors[`sizes[${index}].stock`] = 'Stock must be a valid positive whole number';
           }
           
@@ -444,7 +447,7 @@ export default function EditProductPage() {
 
     // Filter out incomplete size entries
     const validSizes = updatedProduct.sizes.filter((size, index) => {
-      if (!size.size || !size.mrp || !size.selling_price || !size.stock) {
+      if (!size.size || !size.mrp || !size.selling_price || !isFilled(size.stock)) {
         toast.warning(`Removing incomplete size option ${index + 1}`);
         return false;
       }
