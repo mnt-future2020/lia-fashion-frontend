@@ -633,7 +633,7 @@ const Products = () => {
                                   variant="ghost"
                                   size="icon"
                                   className="h-8 w-8 text-pink-500 hover:text-pink-600"
-                                  onClick={() => router.push(`/admin/dashboard/products/editproduct/${product.id}`)}
+                                  onClick={() => router.push(`/admin/dashboard/products/editproduct/${product.id}${currentPage > 1 ? `?page=${currentPage}` : ""}`)}
                                 >
                                   <Pencil className="h-4 w-4" />
                                 </Button>

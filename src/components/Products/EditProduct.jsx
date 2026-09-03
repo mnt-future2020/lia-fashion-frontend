@@ -33,6 +33,19 @@ export default function EditProductPage() {
   const router = useRouter()
   const { id } = useParams()
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Page number the admin came from in the products list, so we can go back to it
+  const [returnPage, setReturnPage] = useState(1)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const pageFromUrl = parseInt(new URLSearchParams(window.location.search).get("page"))
+      if (pageFromUrl > 1) setReturnPage(pageFromUrl)
+    }
+  }, [])
+
+  const productsListUrl =
+    returnPage > 1 ? `/admin/dashboard/products?page=${returnPage}` : "/admin/dashboard/products"
+
   const [product, setProduct] = useState({
     name: "",
     sku_code: "",
@@ -503,7 +516,7 @@ export default function EditProductPage() {
       toast.success("Product updated successfully!")
       // Add a small delay before redirect to ensure toast is visible
       setTimeout(() => {
-        router.push("/admin/dashboard/products")
+        router.push(productsListUrl)
       }, 1500)
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to update product")
@@ -1088,7 +1101,7 @@ export default function EditProductPage() {
                 <Button
                   variant="outline"
                   className="w-full sm:w-auto"
-                  onClick={() => router.push("/admin/dashboard/products")}
+                  onClick={() => router.push(productsListUrl)}
                   disabled={isSubmitting}
                 >
                   Cancel
