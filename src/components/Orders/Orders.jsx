@@ -471,15 +471,17 @@ export default function OrderManagement() {
 
   // Print Invoice (compact receipt)
   const handlePrintInvoice = async (invoice) => {
+    let printWindow;
     try {
-      console.log('Print Invoice Data:', invoice);
-      console.log('Address Data:', invoice.address);
-      const logoBase64 = await getBase64Image(invoice.company?.logo || '/assets/images/logo.png');
-      const printWindow = window.open('', '', 'width=440,height=500');
+      // Open the window before any await. Once the click's user activation is spent
+      // — and awaiting the logo spends it — mobile browsers block window.open outright.
+      printWindow = window.open('', '', 'width=440,height=500');
       if (!printWindow) {
         toast.error("Please allow popups to print the invoice.");
         return;
       }
+
+      const logoBase64 = await getBase64Image(invoice.company?.logo || '/assets/images/logo.png');
       // Print Billing and Shipping Address above the table
       // Format date as dd/mm/yyyy
       const dateObj = new Date(invoice.created_at || invoice.date);
@@ -604,23 +606,26 @@ export default function OrderManagement() {
         printWindow.focus();
         printWindow.print();
       }, 500);
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to print invoice. Please try again.");
+      if (printWindow) printWindow.close();
     }
   };
 
   // Function to download invoice as PDF (old wide format)
   const handleDownloadInvoice = async (invoice) => {
+    let printWindow;
     try {
-      console.log('Download Invoice Data:', invoice);
-      console.log('Download Address Data:', invoice.address);
-      await preloadImages(invoice.items.map(item => item.product.image));
-      const logoBase64 = await getBase64Image(invoice.company?.logo || '/assets/images/logo.png');
-      const printWindow = window.open('', '', 'width=800,height=800');
+      // Same as printing: the window has to be opened while the click is still
+      // the active user gesture, before the image preloading awaits below.
+      printWindow = window.open('', '', 'width=800,height=800');
       if (!printWindow) {
         toast.error("Please allow popups to download the invoice as PDF.");
         return;
       }
+
+      await preloadImages(invoice.items.map(item => item.product.image));
+      const logoBase64 = await getBase64Image(invoice.company?.logo || '/assets/images/logo.png');
       // Format date and time
       const displayDate = invoice.date;
       const displayTime = new Date(invoice.created_at).toLocaleTimeString();
@@ -936,6 +941,7 @@ export default function OrderManagement() {
       }, 1000);
     } catch (_error) {
       toast.error("An error occurred while generating the PDF. Please try again.");
+      if (printWindow) printWindow.close();
     }
   };
 
