@@ -178,7 +178,7 @@ class ShippingController {
   }
 
   // Calculate shipping charge based on weight and location
-  calculateShippingCharge(cartItems, state, orderSubtotal = 0) {
+  calculateShippingCharge(cartItems, state, _orderSubtotal = 0) {
     try {
       if (!this.initialized) {
         // console.warn('Shipping controller not initialized, initializing with defaults');
@@ -201,32 +201,10 @@ class ShippingController {
 
       const totalWeight = this.calculateCartWeight(cartItems);
       let totalShippingCharge = 0;
-      let weightCharge = 0;
       let locationCharge = 0;
       let appliedRules = [];
-      let freeShipping = false;
-
-      // Calculate weight-based charge (only if weight rules exist)
-      if (Array.isArray(this.weightRules) && this.weightRules.length > 0) {
-        const weightRule = this.findWeightRule(totalWeight);
-        if (weightRule) {
-          weightCharge = parseFloat(weightRule.price) || 0;
-          const freeShippingAmount = parseFloat(weightRule.free_shipping_amount) || 0;
-          freeShipping = freeShippingAmount > 0 && orderSubtotal >= freeShippingAmount;
-
-          if (freeShipping) {
-            weightCharge = 0; // Free shipping applies to weight portion
-          }
-
-          appliedRules.push({
-            type: 'weight',
-            rule: weightRule,
-            charge: weightCharge,
-            originalCharge: parseFloat(weightRule.price) || 0,
-            freeShipping: freeShipping
-          });
-        }
-      }
+      // Weight rules no longer contribute to the charge, so free shipping never applies.
+      const freeShipping = false;
 
       // Calculate location-based charge (only if location rules exist)
       if (Array.isArray(this.locationRules) && this.locationRules.length > 0) {
@@ -242,8 +220,9 @@ class ShippingController {
         }
       }
 
-      // Calculate total shipping charge
-      totalShippingCharge = weightCharge + locationCharge;
+      // The admin's location table is the only source of the shipping charge. Cart
+      // weight is still calculated, but only to display the shipment weight.
+      totalShippingCharge = locationCharge;
 
       // Return combined result if we have any rules applied
       if (appliedRules.length > 0) {
@@ -258,7 +237,7 @@ class ShippingController {
           freeShipping: freeShipping,
           totalWeight,
           breakdown: {
-            weightCharge,
+            weightCharge: 0,
             locationCharge,
             freeShipping
           }
