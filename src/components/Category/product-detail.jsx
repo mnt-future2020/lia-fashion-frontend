@@ -29,6 +29,10 @@ export default function ProductDetail({ category, subcategory, products }) {
   const [itemsPerPage] = useState(25) // Server-side pagination size
   const [initialLoad, setInitialLoad] = useState(true)
   const [scrollRestored, setScrollRestored] = useState(false)
+  // Signature of the last-seen filters. Used to reset to page 1 only on a genuine filter
+  // change — not when currentPage, scrollRestored or the mount itself changes (which must
+  // never clobber a page restored on back-navigation).
+  const prevFilterSigRef = useRef(null)
   const [lastViewedProduct, setLastViewedProduct] = useState(null)
   const productRefs = useRef({})
   const [totalItems, setTotalItems] = useState(0)
@@ -443,19 +447,30 @@ export default function ProductDetail({ category, subcategory, products }) {
       }
     }
 
-    // If filters change and we're not restoring from URL, reset to page 1
-    if (!initialLoad && currentPage !== 1 && !scrollRestored) {
-      const hasPageInUrl = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('page')
-      if (!hasPageInUrl) {
+    // Reset to page 1 ONLY when a filter (search / price / sizes / sort) actually changes.
+    // The old code reset whenever this effect re-ran (on currentPage or scrollRestored
+    // changes too), which clobbered the page restored on back-navigation to 1 — especially
+    // since Next.js drops the ?page= query on back, defeating the old URL guard. Comparing a
+    // signature of just the filters fixes it: a page change or restore no longer resets.
+    const filterSig = JSON.stringify({
+      search: debouncedSearchQuery || '',
+      price: priceRange,
+      sizes: selectedSizes,
+      sort: sortOption,
+      sub: subcategory?.id ?? null,
+      cat: category?.id ?? null,
+    })
+    if (!initialLoad && prevFilterSigRef.current !== null && prevFilterSigRef.current !== filterSig) {
+      if (currentPage !== 1) {
         setCurrentPage(1)
         if (typeof window !== 'undefined') {
           const params = new URLSearchParams(window.location.search)
           params.delete('page')
-          const newUrl = `${window.location.pathname}?${params.toString()}`
-          window.history.replaceState({}, '', newUrl)
+          window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`)
         }
       }
     }
+    prevFilterSigRef.current = filterSig
 
     fetchServerProducts()
   }, [mounted, currentPage, itemsPerPage, debouncedSearchQuery, priceRange, selectedSizes, sortOption, subcategory?.id, category?.id, initialLoad, scrollRestored])
@@ -494,7 +509,9 @@ export default function ProductDetail({ category, subcategory, products }) {
 
   // Ensure current page is valid
   useEffect(() => {
-    if (mounted && totalPages > 0 && currentPage > totalPages && !scrollRestored) {
+    // Only clamp an out-of-range page after the initial restore (scrollRestored), never
+    // during it — otherwise a briefly-stale totalPages would reset the restored page to 1.
+    if (mounted && totalPages > 0 && currentPage > totalPages && scrollRestored) {
       setCurrentPage(1)
       
       // Update URL
