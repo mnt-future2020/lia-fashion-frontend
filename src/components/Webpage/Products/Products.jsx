@@ -640,6 +640,24 @@ export default function Products() {
     router.push(`/products/${productId}`)
   }
 
+  // Skeleton placeholder grid shown while products load — mirrors the real product-card
+  // layout (same grid columns + aspect ratio) so the page doesn't jump when data arrives.
+  const renderProductSkeletons = (count = 10) => (
+    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="bg-white rounded-lg shadow-sm overflow-hidden animate-pulse">
+          <div className="aspect-[3/4] bg-gray-200" />
+          <div className="p-3">
+            <div className="h-3 w-1/3 bg-gray-200 rounded mb-2" />
+            <div className="h-4 w-3/4 bg-gray-200 rounded mb-3" />
+            <div className="h-4 w-1/2 bg-gray-200 rounded mb-3" />
+            <div className="h-8 w-full bg-gray-200 rounded" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+
   if (!mounted) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -674,13 +692,7 @@ export default function Products() {
         </div>
 
         <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="relative w-16 h-16">
-              <div className="absolute inset-0 border-4 border-pink-200 rounded-full"></div>
-              <div className="absolute inset-0 border-4 border-[#eb1c75] rounded-full animate-spin border-t-transparent"></div>
-            </div>
-            <p className="text-gray-600 mt-4">Loading products...</p>
-          </div>
+          {renderProductSkeletons(10)}
         </div>
       </div>
     );
@@ -922,13 +934,7 @@ export default function Products() {
 
             {/* Products Grid */}
             {productsLoading ? (
-              <div className="col-span-full flex flex-col items-center justify-center py-20">
-                <div className="relative w-16 h-16">
-                  <div className="absolute inset-0 border-4 border-pink-200 rounded-full"></div>
-                  <div className="absolute inset-0 border-4 border-[#eb1c75] rounded-full animate-spin border-t-transparent"></div>
-                </div>
-                <p className="text-gray-600 mt-4">Loading products...</p>
-              </div>
+              renderProductSkeletons(itemsPerPage)
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
               {getCurrentPageItems().map((product) => {
