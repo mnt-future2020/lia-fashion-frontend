@@ -10,6 +10,7 @@ import Cloudinary from "./Cloudinary"
 import Storage from "./Storage"
 import Banner from "./Banner"
 import Shiprocket from "./Shiprocket"
+import WhatsAppOtp from "./WhatsAppOtp"
 
 
 const Settings = () => {
@@ -26,7 +27,8 @@ const Settings = () => {
     // credentials remain viewable for images already hosted there.
     { key: "Storage", title: "Storage (R2)" },
     { key: "Cloudinary", title: "Cloudinary (legacy)" },
-    { key: "Banners", title: "Banners" }
+    { key: "Banners", title: "Banners" },
+    { key: "WhatsApp", title: "WhatsApp OTP" }
   ]
   const renderContent = () => {
     switch (activeTab) {
@@ -46,6 +48,8 @@ const Settings = () => {
         return <Cloudinary />
       case "Banners":
         return <Banner />
+      case "WhatsApp":
+        return <WhatsAppOtp />
       default:
         return <General />
     }
