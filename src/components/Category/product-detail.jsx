@@ -17,7 +17,10 @@ export default function ProductDetail({ category, subcategory, products }) {
   const { updateCartData, cartData } = useUserCart()
   const [mounted, setMounted] = useState(false)
   const [filteredProducts, setFilteredProducts] = useState([])
-  const [sortOption, setSortOption] = useState("featured")
+  // Default to a REAL dropdown option ("featured" was removed from the <select>). Starting
+  // at "featured" and then restoring "price-low-high" on mount looked like a filter change
+  // and reset the page to 1 on every back-navigation — matching the default fixes that.
+  const [sortOption, setSortOption] = useState("price-low-high")
   const [filterOpen, setFilterOpen] = useState(false)
   const [priceRange, setPriceRange] = useState([0, 15000])
   const [selectedRating, setSelectedRating] = useState(0)
@@ -92,7 +95,8 @@ export default function ProductDetail({ category, subcategory, products }) {
         setSelectedRating(savedFilters.selectedRating || 0)
         setSearchQuery(savedFilters.searchQuery || '')
         setSelectedSizes(savedFilters.selectedSizes || [])
-        setSortOption(savedFilters.sortOption || "price-low-high")
+        // Sanitize a possibly-stale saved sort (old builds saved "featured") to a valid option.
+        setSortOption(['price-low-high', 'price-high-low'].includes(savedFilters.sortOption) ? savedFilters.sortOption : "price-low-high")
         
         // Prioritize URL page parameter, then saved page, then default to 1
         const finalPage = pageFromUrl ? urlPage : (savedFilters.currentPage || 1)
@@ -461,6 +465,7 @@ export default function ProductDetail({ category, subcategory, products }) {
       cat: category?.id ?? null,
     })
     if (!initialLoad && prevFilterSigRef.current !== null && prevFilterSigRef.current !== filterSig) {
+      if (typeof window !== 'undefined') console.log('[PAGE-RESET] filter changed -> page 1', { prev: prevFilterSigRef.current, cur: filterSig })
       if (currentPage !== 1) {
         setCurrentPage(1)
         if (typeof window !== 'undefined') {
@@ -512,6 +517,7 @@ export default function ProductDetail({ category, subcategory, products }) {
     // Only clamp an out-of-range page after the initial restore (scrollRestored), never
     // during it — otherwise a briefly-stale totalPages would reset the restored page to 1.
     if (mounted && totalPages > 0 && currentPage > totalPages && scrollRestored) {
+      if (typeof window !== 'undefined') console.log('[PAGE-RESET] out-of-range clamp -> page 1', { currentPage, totalPages })
       setCurrentPage(1)
       
       // Update URL
