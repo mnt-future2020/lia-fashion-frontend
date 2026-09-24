@@ -273,7 +273,16 @@ export default function Products() {
         // Prioritize URL page parameter, then saved page, then default to 1
         const finalPage = pageFromUrl ? page : (savedFilters.currentPage || 1)
         setCurrentPage(finalPage)
-        console.log('Setting page from URL/localStorage:', finalPage, 'URL page:', pageFromUrl, 'Saved page:', savedFilters.currentPage)
+        // Keep the URL in sync with the restored page. On browser back-navigation the
+        // Next.js App Router can drop the ?page= query (it doesn't track our
+        // history.replaceState calls). Without re-writing it here, the "reset to page 1
+        // on filter change" effect below sees no page param and clobbers the restored
+        // page back to 1 — the exact "open a product on page 5, go back, land on page 1"
+        // bug. Re-writing the param makes every URL-guarded effect agree on the page.
+        if (finalPage > 1 && !pageFromUrl) {
+          params.set('page', finalPage.toString())
+          window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`)
+        }
       } else {
         // Use URL params if no saved filters
         setSearchQuery(search)
