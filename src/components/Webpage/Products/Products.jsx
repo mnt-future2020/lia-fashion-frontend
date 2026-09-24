@@ -198,50 +198,41 @@ export default function Products() {
     }
   }, [mounted, products])
 
-  // Check for last viewed product on mount and auto-scroll
+  // Check for last viewed product on mount and auto-scroll.
+  //
+  // ROOT CAUSE of the "open a product on page N, go back, land on page 1" bug:
+  // this effect used to recompute the page from the product's index in `filteredProducts`
+  // (`Math.ceil((index + 1) / itemsPerPage)`). That was correct under the OLD client-side
+  // pagination, when `filteredProducts` held EVERY product. This page now uses SERVER-SIDE
+  // pagination (`filteredProducts` = only the current page's `itemsPerPage` items), so the
+  // index is always 0..itemsPerPage-1 and the computed page was ALWAYS 1 — force-resetting
+  // currentPage to 1 right after it was correctly restored. The fetch effect already loads
+  // the restored page, so the viewed product is on-screen; only scroll to it, never repage.
   useEffect(() => {
     if (typeof window !== 'undefined' && filteredProducts.length > 0 && mounted) {
       const storedLastViewedId = localStorage.getItem('lastViewedProduct')
       if (storedLastViewedId) {
         const productId = parseInt(storedLastViewedId)
         setLastViewedProduct(productId)
-        
-        // Find which page the product is on
-        const productIndex = filteredProducts.findIndex(p => p.id === productId)
-        if (productIndex !== -1) {
-          const productPage = Math.ceil((productIndex + 1) / itemsPerPage)
-          
-          // Navigate to the correct page if needed
-          if (productPage !== currentPage) {
-            setCurrentPage(productPage)
-            // Update URL
-            const params = new URLSearchParams(window.location.search)
-            if (productPage === 1) {
-              params.delete('page')
-            } else {
-              params.set('page', productPage.toString())
-            }
-            const newUrl = `${window.location.pathname}?${params.toString()}`
-            window.history.replaceState({}, '', newUrl)
-          }
-          
-          // Auto-scroll to the product with a delay to ensure rendering
+
+        // Scroll to the product only if it's on the current (restored) page.
+        if (filteredProducts.some(p => p.id === productId)) {
           setTimeout(() => {
             const productElement = productRefs.current[storedLastViewedId]
             if (productElement) {
-              productElement.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'center' 
+              productElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
               })
             }
-          }, 600) // Increased delay to ensure page change and DOM rendering
+          }, 600) // Delay to ensure DOM rendering
         }
-        
+
         const timer = setTimeout(() => {
           setLastViewedProduct(null)
           localStorage.removeItem('lastViewedProduct')
         }, 3000) // Show highlight for 3 seconds
-        
+
         return () => clearTimeout(timer)
       }
     }
