@@ -25,8 +25,8 @@ import { useUserAuth } from "@/contexts/UserAuthContext";
 import { orderService } from "@/services/orderService";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+// html2canvas + jsPDF (~1 MB) are imported dynamically inside the invoice-download
+// handler below, so they stay out of this customer page's initial bundle.
 import axios from "../../../lib/axios";
 
 const Orders = () => {
@@ -530,7 +530,12 @@ const Orders = () => {
       printWindow.document.close();
 
       // Wait for content to load completely
-      setTimeout(() => {
+      setTimeout(async () => {
+        // Load the PDF tooling on demand (only when the user actually downloads).
+        const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+          import('html2canvas'),
+          import('jspdf'),
+        ]);
         // Convert the HTML to PDF with html2canvas and jsPDF
         html2canvas(printWindow.document.body, {
           scale: 2,

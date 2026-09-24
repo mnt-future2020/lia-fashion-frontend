@@ -9,7 +9,7 @@ const instance = axios.create({
 });
 
 // Request retry configuration
-const MAX_RETRIES = 3;
+const MAX_RETRIES = 1;
 const RETRY_DELAY = 1000; // 1 second
 
 // Add request ID for tracking

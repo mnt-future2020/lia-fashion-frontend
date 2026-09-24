@@ -44,9 +44,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/react-toastify/dist/ReactToastify.css" />
-      </head>
+      {/* ReactToastify.css is already imported above (bundled). The render-blocking
+          jsDelivr <link> that used to be here was a duplicate and has been removed. */}
       <body className={`${poppins.className} antialiased`}>
         <ClientErrorProvider>
           <AuthProvider>

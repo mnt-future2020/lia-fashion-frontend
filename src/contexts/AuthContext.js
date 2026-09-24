@@ -21,12 +21,21 @@ export function AuthProvider({ children }) {
       setState(prev => ({ ...prev, isAuthenticated: false }));
       router.replace('/admin/login');
     }
-    setState(prev => ({
-      ...prev,
-      isAuthenticated: !!token,
-      isLoading: false,
-      initialized: true
-    }));
+    // Return the SAME state object when nothing changed so React skips the re-render.
+    // The 1s poll otherwise created a fresh object every tick and re-rendered the whole
+    // app tree every second. Behaviour (token detection + redirect above) is unchanged.
+    setState(prev => {
+      const authed = !!token;
+      if (prev.isAuthenticated === authed && prev.initialized === true && prev.isLoading === false) {
+        return prev;
+      }
+      return {
+        ...prev,
+        isAuthenticated: authed,
+        isLoading: false,
+        initialized: true
+      };
+    });
   };
 
   useEffect(() => {

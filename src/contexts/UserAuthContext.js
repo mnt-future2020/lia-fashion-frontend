@@ -25,13 +25,15 @@ export function UserAuthProvider({ children }) {
         // Add a function to watch token changes
         const watchToken = () => {
             const token = Cookies.get('user-token');
-            if (!token && state.isAuthenticated) {
-                setState({
-                    isAuthenticated: false,
-                    isLoading: false,
-                    user: null
+            if (!token) {
+                // Functional update: reads the CURRENT auth via `prev` instead of the
+                // captured `state`, so this keeps working with an empty dependency array
+                // below (no stale closure) and skips a re-render when nothing changed.
+                setState(prev => {
+                    if (!prev.isAuthenticated) return prev;
+                    delete axios.defaults.headers.common['Authorization'];
+                    return { isAuthenticated: false, isLoading: false, user: null };
                 });
-                delete axios.defaults.headers.common['Authorization'];
             }
         };
 
@@ -113,7 +115,9 @@ export function UserAuthProvider({ children }) {
             clearInterval(tokenWatcher);
             clearTimeout(initTimer);
         };
-    }, [state.isAuthenticated]); // Add state.isAuthenticated as dependency for watchToken
+    }, []); // Run once on mount. watchToken now uses a functional setState, so it no longer
+            // needs state.isAuthenticated as a dependency — which also stops the duplicate
+            // /api/user call that fired every time auth flipped to true on login.
 
     const setAuth = (token, userData) => {
         // Set token in cookie (shared helper applies path/sameSite/secure consistently)

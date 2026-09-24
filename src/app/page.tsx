@@ -20,12 +20,10 @@ import Categories from "@/components/Webpage/Home/Categories2/Categories";
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useUserAuth } from "@/contexts/UserAuthContext";
 import BestSellerSection from './../components/Webpage/Home/BestSellerSection/BestSellerSection';
 import SubcategoriesSection from "@/components/Webpage/Home/SubcategoriesSection/SubcategoriesSection";
 
 export default function Home() {
-  const { isAuthenticated, isLoading } = useUserAuth();
   const [settings, setSettings] = useState({
     tel: '+91 93844 09680',
     email: '@gmail.com',
@@ -86,15 +84,9 @@ export default function Home() {
     };
   }, []);
 
-  // Show loading state while checking authentication
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
+  // The homepage content (banners, products, categories) does not depend on auth, so it
+  // renders immediately. The Navbar reads auth from context and updates its account/cart
+  // state on its own once the session resolves — no need to block first paint on it.
   return (
     <>
       <Navbar />
